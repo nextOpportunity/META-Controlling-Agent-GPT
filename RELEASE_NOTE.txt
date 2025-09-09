@@ -1,7 +1,0 @@
-Release-Notiz
-Date: 2025-09-09 17:08:29
-Patch-Report: reports/patch_latest_results.json
-Incidents: incidents_sample.json
-Alpha/Beta/Prod: PASS
-Latency p95 (ms): 390 | GVR: 0.1%
-— MCAG Gates bestanden —
