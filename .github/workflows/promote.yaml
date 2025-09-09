@@ -1,0 +1,68 @@
+version: 0.1
+name: MCAG Promote
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: mcag-promote-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install deps
+        run: |
+          python -m venv .venv
+          . .venv/bin/activate
+          pip install -U pip pyyaml
+
+      - name: Ensure reports dir
+        run: mkdir -p reports
+
+      - name: Run patch tests
+        run: |
+          . .venv/bin/activate
+          python mcag_starter/scripts/evaluate.py \
+            --suite 'mcag_phase0_patch/tests/tests_patch_v*.yaml' \
+            --output reports/patch_latest_results.json
+
+      - name: Alpha gate
+        run: |
+          . .venv/bin/activate
+          python scripts/promote.py \
+            --phase alpha \
+            --report reports/patch_latest_results.json \
+            --incidents incidents_sample.json \
+            --latency_p95_ms 650 \
+            --guardrail_violation_rate 0.002
+
+      - name: Create release note
+        run: |
+          echo "Release-Notiz" > RELEASE_NOTE.txt
+          echo "Date: $(date '+%Y-%m-%d %H:%M:%S')" >> RELEASE_NOTE.txt
+          echo "Patch-Report: reports/patch_latest_results.json" >> RELEASE_NOTE.txt
+          echo "Incidents: incidents_sample.json" >> RELEASE_NOTE.txt
+          echo "Alpha: PASS" >> RELEASE_NOTE.txt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcag-promote-artifacts
+          path: |
+            reports/patch_latest_results.json
+            RELEASE_NOTE.txt
+          if-no-files-found: error
