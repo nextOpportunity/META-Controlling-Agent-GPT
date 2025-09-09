@@ -57,6 +57,3 @@ jobs:
             reports/patch_latest_results.json
             RELEASE_NOTE.txt
           if-no-files-found: error
-
-
-
