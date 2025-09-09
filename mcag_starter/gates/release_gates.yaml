@@ -1,0 +1,9 @@
+version: 0.2
+gates:
+  - id: alpha-entry
+    checks:
+      - evals.pass_rate(suite="mcag_phase0_patch/tests/tests_patch_v0.yaml") >= 0.90
+      - slos.guardrail_violation_rate <= phase(alpha)
+      - slos.decision_latency_p95_ms <= phase(alpha)
+      - slos.post_eval_coverage_pct >= phase(alpha)
+      - incidents.last_7d_sev1 == 0
