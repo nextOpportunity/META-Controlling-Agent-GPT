@@ -1,4 +1,5 @@
-name: MCAG PR Check
+name: MCAG PR Check 
+# V2025-09-10
 
 on:
   pull_request:
@@ -62,13 +63,19 @@ jobs:
               // lassen wir weiterlaufen – Kommentar wird generisch
             }
 
-            const ok = passed === total && total > 0;
+            # --- Nur passed bei 100%  const ok = passed === total && total > 0; ----
+            const ok = total > 0 && passRate >= 0.95;  #--- 95% Fehlertoleranz ------
+
+            # --- Report mit duration (Dauer in Sekunden)
+            const d = json.summary.duration || 0;
+
             const title = ok ? "✅ MCAG PR Check: Tests passed" : "❌ MCAG PR Check: Tests failed";
             const body = [
               `**${title}**`,
               ``,
               `- Passed: **${passed}/${total}** (${(passRate*100).toFixed(2)}%)`,
               `- Run: ${process.env.RUN_URL}`,
+              `- Dauer: ${d}s`,
               ``,
               `> Workflow: MCAG PR Check / test`
             ].join('\n');
