@@ -39,7 +39,6 @@ jobs:
           path: reports/patch_latest_results.json
           if-no-files-found: warn
 
-      # --- PR-Kommentar ------------------------------------------------------
       - name: Comment test result in PR
         if: always()
         uses: actions/github-script@v7
@@ -49,47 +48,47 @@ jobs:
           script: |
             const fs = require('fs');
 
-            // Defaultwerte, falls der Report fehlt
+            // Standardwerte
             let passed = 0, total = 0, passRate = 0;
-            let durationSec = null;
+            let durationSec = 0; // Default = 0
 
             try {
               const raw = fs.readFileSync('reports/patch_latest_results.json', 'utf8');
-              const json = JSON.parse(raw);
-              const s = json.summary || {};
+              const report = JSON.parse(raw);
+              const s = report.summary || {};
               passed = Number(s.passed || 0);
               total  = Number(s.total  || 0);
               passRate = total > 0 ? (passed / total) : 0;
 
-              // Dauer ggf. aus unterschiedlichen Feldern lesen
+              // Dauer, falls vorhanden
               const d = (s.duration_sec !== undefined ? s.duration_sec : s.duration);
               if (d !== undefined && d !== null && !Number.isNaN(Number(d))) {
                 durationSec = Number(d);
               }
             } catch (e) {
-              // Report nicht lesbar -> generischer Kommentar
+              // Report fehlt oder ist nicht lesbar
             }
 
-            // Strenge Regel: nur grün bei 100 %
-            // const ok = (total > 0) && (passed === total)
+            // Regel: mind. 95 % Tests bestanden
             const ok = total > 0 && passRate >= 0.95;
-            // report auf Null IN Sekunden 
-            const d = json.summary.duration || 0;
 
-            const lines = [
-              `**${ok ? "✅ MCAG PR Check: Tests passed" : "❌ MCAG PR Check: Tests failed"}**`,
-              '',
+            const title = ok
+              ? "✅ MCAG PR Check: Tests passed"
+              : "❌ MCAG PR Check: Tests failed";
+
+            const body = [
+              `**${title}**`,
+              ``,
               `- Passed: **${passed}/${total}** (${(passRate*100).toFixed(2)}%)`,
-              `- Dauer: ${d}s`,
-              `- Run: ${process.env.RUN_URL}`
-            ];
-            if (Number.isFinite(durationSec)) {
-              lines.push(`- Dauer: ${durationSec}s`);
-            }
+              `- Dauer: ${durationSec}s`,
+              `- Run: ${process.env.RUN_URL}`,
+              ``,
+              `> Workflow: MCAG PR Check / test`
+            ].join('\n');
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
-              body: lines.join('\n')
+              body
             });
