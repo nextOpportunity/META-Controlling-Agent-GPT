@@ -6,26 +6,31 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write   # nötig zum Kommentieren
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Install dependencies
         run: |
           python -m venv .venv
           . .venv/bin/activate
           pip install -U pip pyyaml
+
       - name: Run patch tests
         run: |
           . .venv/bin/activate
           python mcag_starter/scripts/evaluate.py \
             --suite 'mcag_phase0_patch/tests/tests_patch_v*.yaml' \
             --output reports/patch_latest_results.json
+
       - name: Upload test report (artifact)
         if: always()
         uses: actions/upload-artifact@v4
@@ -33,3 +38,44 @@ jobs:
           name: pr-test-report
           path: reports/patch_latest_results.json
           if-no-files-found: warn
+
+      # --- PR-Kommentar ------------------------------------------------------
+      - name: Comment test result in PR
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Default-Werte falls Report fehlt
+            let passed = 0, total = 0, passRate = 0;
+            try {
+              const raw = fs.readFileSync('reports/patch_latest_results.json', 'utf8');
+              const json = JSON.parse(raw);
+              const s = json.summary || {};
+              passed = Number(s.passed || 0);
+              total  = Number(s.total  || 0);
+              passRate = total > 0 ? (passed / total) : 0;
+            } catch (e) {
+              // lassen wir weiterlaufen – Kommentar wird generisch
+            }
+
+            const ok = passed === total && total > 0;
+            const title = ok ? "✅ MCAG PR Check: Tests passed" : "❌ MCAG PR Check: Tests failed";
+            const body = [
+              `**${title}**`,
+              ``,
+              `- Passed: **${passed}/${total}** (${(passRate*100).toFixed(2)}%)`,
+              `- Run: ${process.env.RUN_URL}`,
+              ``,
+              `> Workflow: MCAG PR Check / test`
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body
+            });
