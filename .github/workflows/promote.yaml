@@ -31,8 +31,6 @@ jobs:
             --suite 'mcag_phase0_patch/tests/tests_patch_v*.yaml' \
             --output reports/patch_latest_results.json
 
-      # ---- Gates -------------------------------------------------------------
-
       - name: Alpha gate
         run: |
           . .venv/bin/activate
@@ -63,15 +61,22 @@ jobs:
             --latency_p95_ms 390 \
             --guardrail_violation_rate 0.001
 
-      # -----------------------------------------------------------------------
-
       - name: Create release note
+        env:
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          echo "Release-Notiz" > RELEASE_NOTE.txt
-          echo "Date: $(date '+%Y-%m-%d %H:%M:%S')" >> RELEASE_NOTE.txt
-          echo "Patch-Report: reports/patch_latest_results.json" >> RELEASE_NOTE.txt
-          echo "Incidents: incidents_sample.json" >> RELEASE_NOTE.txt
-          echo "Alpha/Beta/Prod: (siehe Job-Log)" >> RELEASE_NOTE.txt
+          SHORT_SHA=${SHA::7}
+          {
+            echo "Release-Notiz"
+            echo "Date: $(date '+%Y-%m-%d %H:%M:%S')"
+            echo "Repo: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
+            echo "Commit: $SHORT_SHA ($SHA)"
+            echo "Run: $RUN_URL"
+            echo "Patch-Report: reports/patch_latest_results.json"
+            echo "Incidents: incidents_sample.json"
+            echo "Gates: Alpha, Beta, Prod (siehe Job-Log)"
+          } > RELEASE_NOTE.txt
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
