@@ -5,6 +5,14 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write   # für Release-Erstellung
+  actions: read
+
+concurrency:
+  group: promote-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   promote:
     runs-on: ubuntu-latest
@@ -86,3 +94,21 @@ jobs:
             reports/patch_latest_results.json
             RELEASE_NOTE.txt
           if-no-files-found: error
+
+      # Optional: Tag + GitHub Release (leicht entfernbar)
+      - name: Prepare tag
+        id: tag
+        run: |
+          TS=$(date +'%Y%m%d-%H%M%S')
+          TAG="mcag-${TS}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: ${{ steps.tag.outputs.tag }}
+          body_path: RELEASE_NOTE.txt
+          files: |
+            RELEASE_NOTE.txt
+            reports/patch_latest_results.json
