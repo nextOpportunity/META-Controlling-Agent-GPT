@@ -31,6 +31,8 @@ jobs:
             --suite 'mcag_phase0_patch/tests/tests_patch_v*.yaml' \
             --output reports/patch_latest_results.json
 
+      # ---- Gates -------------------------------------------------------------
+
       - name: Alpha gate
         run: |
           . .venv/bin/activate
@@ -41,13 +43,35 @@ jobs:
             --latency_p95_ms 650 \
             --guardrail_violation_rate 0.002
 
+      - name: Beta gate
+        run: |
+          . .venv/bin/activate
+          python scripts/promote.py \
+            --phase beta \
+            --report reports/patch_latest_results.json \
+            --incidents incidents_sample.json \
+            --latency_p95_ms 480 \
+            --guardrail_violation_rate 0.002
+
+      - name: Prod gate
+        run: |
+          . .venv/bin/activate
+          python scripts/promote.py \
+            --phase prod \
+            --report reports/patch_latest_results.json \
+            --incidents incidents_sample.json \
+            --latency_p95_ms 390 \
+            --guardrail_violation_rate 0.001
+
+      # -----------------------------------------------------------------------
+
       - name: Create release note
         run: |
           echo "Release-Notiz" > RELEASE_NOTE.txt
           echo "Date: $(date '+%Y-%m-%d %H:%M:%S')" >> RELEASE_NOTE.txt
           echo "Patch-Report: reports/patch_latest_results.json" >> RELEASE_NOTE.txt
           echo "Incidents: incidents_sample.json" >> RELEASE_NOTE.txt
-          echo "Alpha: PASS" >> RELEASE_NOTE.txt
+          echo "Alpha/Beta/Prod: (siehe Job-Log)" >> RELEASE_NOTE.txt
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
