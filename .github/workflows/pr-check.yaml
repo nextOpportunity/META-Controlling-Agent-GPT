@@ -1,5 +1,4 @@
 name: MCAG PR Check 
-// V2025-09-10
 
 on:
   pull_request:
