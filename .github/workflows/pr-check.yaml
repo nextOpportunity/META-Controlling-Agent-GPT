@@ -71,9 +71,9 @@ jobs:
             }
 
             // Strenge Regel: nur grün bei 100 %
-            // const ok = (total > 0) && (passed === total);
+            // const ok = (total > 0) && (passed === total)
             const ok = total > 0 && passRate >= 0.95;
-            // report auf Null IN Sekunden. 
+            // report auf Null IN Sekunden 
             const d = json.summary.duration || 0;
 
             const lines = [
