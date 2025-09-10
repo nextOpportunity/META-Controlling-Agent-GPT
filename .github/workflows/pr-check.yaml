@@ -1,0 +1,35 @@
+name: MCAG PR Check
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          . .venv/bin/activate
+          pip install -U pip pyyaml
+      - name: Run patch tests
+        run: |
+          . .venv/bin/activate
+          python mcag_starter/scripts/evaluate.py \
+            --suite 'mcag_phase0_patch/tests/tests_patch_v*.yaml' \
+            --output reports/patch_latest_results.json
+      - name: Upload test report (artifact)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-test-report
+          path: reports/patch_latest_results.json
+          if-no-files-found: warn
