@@ -1,4 +1,5 @@
 name: MCAG PR Check 
+# --- 2025-09-10
 
 on:
   pull_request:
@@ -39,7 +40,7 @@ jobs:
           path: reports/patch_latest_results.json
           if-no-files-found: warn
 
-      // --- PR-Kommentar ------------------------------------------------------
+      # --- PR-Kommentar ------------------------------------------------------
        - name: Comment test result in PR
         if: always()
         uses: actions/github-script@v7
@@ -49,7 +50,7 @@ jobs:
           script: |
             const fs = require('fs');
 
-            // Defaults, falls Report fehlt
+           # --- Defaults, falls Report fehlt
             let passed = 0, total = 0, passRate = 0;
             let durationSec = null; // optional
 
@@ -61,16 +62,16 @@ jobs:
               total  = Number(s.total  ?? 0);
               passRate = total > 0 ? (passed / total) : 0;
 
-              // Falls vorhanden: verschiedene mögliche Felder für Dauer
+              # --- Falls vorhanden: verschiedene mögliche Felder für Dauer
               const d = (s.duration_sec ?? s.duration);
               if (d !== undefined && d !== null && !Number.isNaN(Number(d))) {
                 durationSec = Number(d);
               }
             } catch (e) {
-              // Report nicht lesbar → generischer Kommentar
+              # --- Report nicht lesbar → generischer Kommentar
             }
 
-            // 100%-Regel (streng). Wenn du 95% erlauben willst: passRate >= 0.95
+           # --- 100%-Regel (streng). Wenn du 95% erlauben willst: passRate >= 0.95
             const ok = (total > 0) && (passed === total);
 
             const title = ok
