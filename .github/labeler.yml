@@ -1,0 +1,5 @@
+docs:
+  - 'README.md'
+  - 'docs/**'
+ci:
+  - '.github/workflows/**'
