@@ -1,0 +1,24 @@
+version: 0.1
+metadata:
+  id: policies-default
+  owner: platform-control
+  scope: global
+  updated: 2025-09-09
+policies:
+  - id: safety.redlines
+    description: "Verbietet Ausgaben, die internen oder regulatorischen Vorgaben widersprechen."
+    mode: block
+    rules:
+      - type: regex
+        pattern: "(?i)api\s*secret|password|schluessel|zugangsdaten"
+        action: redact
+      - type: pii
+        action: redact
+  - id: output.quality
+    description: "Mindestkriterien an Output-Qualität."
+    mode: check
+    rules:
+      - type: must_include
+        fields: ["quellenhinweise_optional", "entscheidungsweg_optional"]
+      - type: max_hallucination_rate
+        threshold: 0.02
