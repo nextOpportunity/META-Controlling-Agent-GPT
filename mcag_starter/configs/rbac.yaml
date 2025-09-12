@@ -1,0 +1,15 @@
+version: 0.1
+roles:
+  - id: owner
+    permissions: ["release:*", "policy:*", "secrets:*", "eval:*"]
+  - id: maintainer
+    permissions: ["release:promote_beta", "policy:update", "eval:run"]
+  - id: analyst
+    permissions: ["metrics:read", "runs:read", "eval:read"]
+  - id: viewer
+    permissions: ["dashboards:view"]
+bindings:
+  - role: owner
+    members: ["michael.schnepper"]
+  - role: maintainer
+    members: ["katharina.reschke"]

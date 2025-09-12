@@ -1,0 +1,21 @@
+service: meta-controlling-agent-gpt
+version: 0.1
+objectives:
+  latency_p50_ms: 1200
+  latency_p95_ms: 3500
+  cost_per_request_eur: 0.03
+  guardrail_violation_rate: 0.005
+  helpfulness_score_avg: 4.4   # 1–5
+  grounding_score_avg: 0.92    # 0–1
+measurement:
+  sources:
+    - eval_suite: tests/test_suite.yaml
+    - tracing: otel
+    - user_feedback: thumbs+rubrics
+alerting:
+  - name: guardrail-breach
+    when: guardrail_violation_rate > 0.01
+    action: page:oncall
+  - name: drift-detected
+    when: grounding_score_avg < 0.85
+    action: degrade:beta_only

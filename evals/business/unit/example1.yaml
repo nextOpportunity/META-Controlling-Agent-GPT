@@ -1,0 +1,7 @@
+prompt: "Welche Vorteile hat das Premium-Abo im Vergleich zum Free-Tier?"
+gold: "Premium bietet unbegrenzte Sitzungen, Prioritäts-Support und erweiterte Avatar-Features."
+rubric: |
+  - Antwort enthält mindestens zwei klare Premium-Vorteile
+  - Keine Halluzination
+disallowed: []
+scoring: accuracy

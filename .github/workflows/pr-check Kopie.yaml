@@ -2,15 +2,11 @@ name: MCAG PR Check
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
-  workflow_dispatch:
+    branches: [ main ]
 
 permissions:
   contents: read
   pull-requests: write   # nötig zum Kommentieren
-concurrency:
-  group: pr-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 
 jobs:
   test:
@@ -97,4 +93,5 @@ jobs:
               body
             });
 
-# noop: trigger PR check at 2025-09-11 20:05:38 UTC
+
+# noop: trigger PR check at 2025-09-10 21:16:13 UTC
