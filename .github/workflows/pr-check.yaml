@@ -46,6 +46,19 @@ jobs:
           path: reports/patch_latest_results.json
           if-no-files-found: warn
 
+      - name: Write step summary
+        if: always()
+        run: |
+          echo "## MCAG Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f reports/patch_latest_results.json ]; then
+            echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+            sed -e 's/[[:cntrl:]]//g' reports/patch_latest_results.json >> $GITHUB_STEP_SUMMARY || true
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Kein Report erzeugt." >> $GITHUB_STEP_SUMMARY
+          fi
+          
       - name: Comment test result in PR
         if: always() && github.event_name == 'pull_request'
         uses: actions/github-script@v7
