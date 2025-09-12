@@ -1,0 +1,21 @@
+name: Auto Label
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# GITHUB_TOKEN-Rechte: Labeler braucht Schreibrechte auf PRs
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply labels from .github/labeler.yml
+        uses: actions/labeler@v5
+        with:
+            repo-token: ${{ secrets.GITHUB_TOKEN }}
+            # Optional: zeigt im Log, warum ein Pattern nicht gematcht hat
+            sync-labels: false
