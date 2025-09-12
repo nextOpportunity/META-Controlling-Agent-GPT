@@ -7,10 +7,6 @@ on:
   push:
     branches: ["main"]
 
-permissions:
-  contents: read
-  pull-requests: write  # nötig zum Kommentieren
-
 concurrency:
   group: mcag-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
