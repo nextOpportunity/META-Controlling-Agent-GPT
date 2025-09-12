@@ -1,5 +1,67 @@
-docs:
-  - 'README.md'
-  - 'docs/**'
-ci:
-  - '.github/workflows/**'
+# .github/labeler.yml
+# Dateibasierte Auto-Labels für META-Controlling-Agent-GPT
+
+area:ci:
+  - changed-files:
+      - any-glob-to-any-file: ".github/workflows/**"
+      - any-glob-to-any-file: "Makefile"
+      - any-glob-to-any-file: "RELEASE_NOTE.txt"
+
+area:docs:
+  - changed-files:
+      - any-glob-to-any-file: "README.md"
+      - any-glob-to-any-file: "PR_SMOKE.md"
+      - any-glob-to-any-file: "docs/**"
+
+area:scripts:
+  - changed-files:
+      - any-glob-to-any-file: "scripts/**"
+      - any-glob-to-any-file: "scripts_alt/**"
+
+area:mcag-starter:
+  - changed-files:
+      - any-glob-to-any-file: "mcag_starter/**"
+
+area:mcag-phase0:
+  - changed-files:
+      - any-glob-to-any-file: "mcag_phase0_patch/**"
+
+area:tests:
+  - changed-files:
+      - any-glob-to-any-file: "mcag_starter/tests/**"
+      - any-glob-to-any-file: "mcag_phase0_patch/tests/**"
+
+area:policies:
+  - changed-files:
+      - any-glob-to-any-file: "mcag_starter/policies/**"
+      - any-glob-to-any-file: "mcag_phase0_patch/policies/**"
+
+area:runbooks:
+  - changed-files:
+      - any-glob-to-any-file: "mcag_starter/runbooks/**"
+      - any-glob-to-any-file: "mcag_phase0_patch/runbooks/**"
+
+area:configs:
+  - changed-files:
+      - any-glob-to-any-file: "mcag_starter/configs/**"
+      - any-glob-to-any-file: "mcag_starter/slos/**"
+      - any-glob-to-any-file: "mcag_starter/gates/**"
+      - any-glob-to-any-file: "incidents_sample.json"
+
+area:reports:
+  - changed-files:
+      - any-glob-to-any-file: "reports/**"
+
+area:prompts:
+  - changed-files:
+      - any-glob-to-any-file: "mcag_starter/prompts/**"
+
+area:experiments:
+  - changed-files:
+      - any-glob-to-any-file: "mcag_starter/experiments/**"
+
+# Kleinkram wie .gitignore, .DS_Store etc.
+chore:
+  - changed-files:
+      - any-glob-to-any-file: ".gitignore"
+      - any-glob-to-any-file: "**/.DS_Store"
